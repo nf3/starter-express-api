@@ -16,9 +16,6 @@ const fetch = require("node-fetch");
 // var config = require("dotenv").config().parsed;
 require("dotenv").config();
 const config = {
-    "APP_PORT": parseInt(process.env.APP_PORT || "8090", 10),
-    "APP_HOST": process.env.APP_HOST || "localhost",
-    "STATIC_DIR": process.env.STATIC_DIR || path.join(__dirname, "public"),
     "SESSION_SECRET": process.env.SESSION_SECRET,
     "BASE_URL": process.env.BASE_URL,
     "ISSUER_URL": process.env.ISSUER_URL,
@@ -26,6 +23,7 @@ const config = {
     "CLIENT_SECRET": process.env.CLIENT_SECRET,
     "PROXY_TARGET_URL": process.env.PROXY_TARGET_URL || "https://api.airtable.com",
     "AIR_TABLE_API_TOKEN": process.env.AIR_TABLE_API_TOKEN,
+    "FRONT_SITE_URL": process.env.FRONT_SITE_URL,
 };
 
 const oidcCallbackUrl = new URL('/oidc/callback', config.BASE_URL).toString();
@@ -151,7 +149,7 @@ app.get('/oidc/callback', (req, res) => {
                     httpOnly: true,
                     expires: 0
                 });
-                res.redirect("/");
+                res.redirect(config.FRONT_SITE_URL);
             });
         }
     });
@@ -159,7 +157,7 @@ app.get('/oidc/callback', (req, res) => {
 
 app.get('/oidc/logout', (req, res) => {
     res.clearCookie("authjwt");
-    res.redirect('/');
+    res.redirect(config.FRONT_SITE_URL);
 });
 
 //////////////////////////////////
@@ -416,44 +414,6 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(process.env.PORT || 3000)
-
-//runServer();
-
-function runServer() {
-    const server = http.createServer(app);
-    server.on('error', function (error) {
-        if (error.syscall !== 'listen') {
-            throw error;
-        }
-
-        var bind = typeof port === 'string'
-            ? 'Pipe ' + port
-            : 'Port ' + port;
-
-        // handle specific listen errors with friendly messages
-        switch (error.code) {
-            case 'EACCES':
-                console.error(bind + ' requires elevated privileges');
-                process.exit(1);
-                break;
-            case 'EADDRINUSE':
-                console.error(bind + ' is already in use');
-                process.exit(1);
-                break;
-            default:
-                throw error;
-        }
-    });
-    server.on('listening', function () {
-        var addr = server.address();
-        var bind = typeof addr === 'string'
-            ? 'pipe ' + addr
-            : 'port ' + addr.port;
-        debug('Listening on ' + bind);
-    });
-
-    server.listen(config.APP_PORT, config.APP_HOST);
-}
 
 function recordOwnedByvv_id(path, vv_id){
   // return new Promise((resolve, reject)=>{

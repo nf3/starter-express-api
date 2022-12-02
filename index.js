@@ -185,7 +185,7 @@ app.get('/oidc/callback', (req, res) => {
                 redirect_uris: [config.BASE_URL + "/oidc/callback"],
                 response_types: ['code'],
             });
-            processLogin();
+            processCallback();
         });
     }
     processCallback();

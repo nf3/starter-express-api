@@ -292,6 +292,7 @@ app.get('/v0/:baseid/:table/:record', (req, res) => {
 
 //LIST
 app.get('/v0/:baseid/:table', (req, res) => {
+  console.log("req.cookies.authjwt", req.cookies.authjwt);
   enableCors(req, res);
   let vv_id="";
   validateJWT(req)

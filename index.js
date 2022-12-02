@@ -180,9 +180,10 @@ app.get('/oidc/callback', (req, res) => {
                     req.session.userinfo = userinfo;
 
                     res.cookie("authjwt", tokenSet.id_token, {
-                        secure: false,
+                        secure: true,
                         httpOnly: true,
-                        expires: 0
+                        expires: 0,
+                        sameSite: 'none'
                     });
                     res.redirect(config.FRONT_SITE_URL);
                 });

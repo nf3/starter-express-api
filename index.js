@@ -61,6 +61,19 @@ app.use(session({
     },
 }));
 
+var enableCors = function(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Max-Age', 60 * 60 * 24 * 30);
+  res.setHeader('Allow', 'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH');
+};
+
+app.options("/*", function (req, res, next) {
+    enableCors(req, res);
+    res.json({});
+})
+
 app.get('/session/jwt', function (req, res, next) {
     if (req.cookies.authjwt) {
         res.json({
@@ -82,14 +95,6 @@ function getKey(header, callback) {
         callback(null, signingKey);
     });
 }
-
-var enableCors = function(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader('Access-Control-Allow-Headers', '*');
-  res.setHeader('Access-Control-Max-Age', 60 * 60 * 24 * 30);
-  res.setHeader('Allow', 'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH');
-};
 
 app.get('/debug', function (req, res, next) {
     console.log(req.session.userinfo);

@@ -62,7 +62,11 @@ app.use(session({
 }));
 
 var enableCors = function(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  if (req.headers.origin) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', *);
+  }
   res.setHeader('Access-Control-Allow-Methods', '*');
   res.setHeader('Access-Control-Allow-Headers', '*');
   res.setHeader('Access-Control-Max-Age', 60 * 60 * 24 * 30);

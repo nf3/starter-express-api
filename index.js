@@ -415,7 +415,7 @@ app.use(function (err, req, res, next) {
     });
 });
 
-app.listen(config.APP_PORT);
+app.listen(process.env.PORT || 3000)
 
 //runServer();
 

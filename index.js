@@ -84,18 +84,11 @@ function getKey(header, callback) {
 }
 
 var enableCors = function(req, res) {
-  if (req.headers['access-control-request-method']) {
-    res.setHeader('access-control-allow-methods', req.headers['access-control-request-method']);
-  }
-
-  if (req.headers['access-control-request-headers']) {
-    res.setHeader('access-control-allow-headers', req.headers['access-control-request-headers']);
-  }
-
-  if (req.headers.origin) {
-    res.setHeader('access-control-allow-origin', req.headers.origin);
-    res.setHeader('access-control-allow-credentials', 'true');
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Max-Age', 60 * 60 * 24 * 30);
+  res.setHeader('Allow', 'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH');
 };
 
 app.get('/debug', function (req, res, next) {

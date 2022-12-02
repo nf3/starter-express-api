@@ -83,6 +83,20 @@ function getKey(header, callback) {
     });
 }
 
+var enableCors = function(req, res) {
+  if (req.headers['access-control-request-method']) {
+    res.setHeader('access-control-allow-methods', req.headers['access-control-request-method']);
+  }
+
+  if (req.headers['access-control-request-headers']) {
+    res.setHeader('access-control-allow-headers', req.headers['access-control-request-headers']);
+  }
+
+  if (req.headers.origin) {
+    res.setHeader('access-control-allow-origin', req.headers.origin);
+    res.setHeader('access-control-allow-credentials', 'true');
+  }
+};
 
 app.get('/debug', function (req, res, next) {
     console.log(req.session.userinfo);
@@ -253,7 +267,7 @@ function validateJWT(req){
 
 //Single record
 app.get('/v0/:baseid/:table/:record', (req, res) => {
-
+    enableCors(req, res);
     let vv_id="";
     validateJWT(req)
     .then((validUser)=>{
@@ -280,7 +294,7 @@ app.get('/v0/:baseid/:table/:record', (req, res) => {
 
 //LIST
 app.get('/v0/:baseid/:table', (req, res) => {
-
+  enableCors(req, res);
   let vv_id="";
   validateJWT(req)
   .then((validUser)=>{
@@ -328,6 +342,7 @@ app.get('/v0/:baseid/:table', (req, res) => {
 
 //CREATE
 app.post('/v0/:baseid/:table', (req, res) => {
+  enableCors(req, res);
   let vv_id="";
   validateJWT(req)
   .then((validUser)=>{
@@ -381,6 +396,7 @@ function patchUpsert(req, res, next){
 }
 
 function Upsert(req, res, next, method){
+  enableCors(req, res);
   let vv_id="";
   validateJWT(req)
   .then((validUser)=>{

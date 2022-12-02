@@ -65,7 +65,7 @@ var enableCors = function(req, res) {
   if (req.headers.origin) {
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
   } else {
-    res.setHeader('Access-Control-Allow-Origin', *);
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   res.setHeader('Access-Control-Allow-Methods', '*');
   res.setHeader('Access-Control-Allow-Headers', '*');

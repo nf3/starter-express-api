@@ -142,9 +142,11 @@ app.get('/oidc/login', (req, res) => {
             });
             processLogin();
         });
+    } else {
+        processLogin();    
     }
 
-    processLogin();
+    
 
 });
 
@@ -187,8 +189,10 @@ app.get('/oidc/callback', (req, res) => {
             });
             processCallback();
         });
+    } else {
+        processCallback();    
     }
-    processCallback();
+    
 });
 
 app.get('/oidc/logout', (req, res) => {

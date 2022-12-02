@@ -131,7 +131,7 @@ app.get('/oidc/login', (req, res) => {
         res.redirect(redir)    
     };
 
-    if (!oidcClient.authorizationUrl) {
+    if (!oidcClient) {
         openidClient.Issuer.discover(config.ISSUER_URL).then((iss) => {
             console.log('Discovered issuer %s %O', iss.issuer, iss.metadata);
             oidcClient = new iss.Client({
@@ -176,7 +176,7 @@ app.get('/oidc/callback', (req, res) => {
         });
     }
 
-    if (!oidcClient.authorizationUrl) {
+    if (!oidcClient) {
         openidClient.Issuer.discover(config.ISSUER_URL).then((iss) => {
             console.log('Discovered issuer %s %O', iss.issuer, iss.metadata);
             oidcClient = new iss.Client({

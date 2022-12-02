@@ -107,52 +107,88 @@ app.get('/login', (req, res) => {
 })
 
 app.get('/oidc/login', (req, res) => {
-    const gens = openidClient.generators;
-    const nonce = gens.nonce();
-    const state = gens.state();
-    const codeVerifier = gens.codeVerifier();
-    const codeChallenger = gens.codeChallenge(codeVerifier);
 
-    req.session.code_verifier = codeVerifier
-    req.session.nonce = nonce
-    req.session.state = state
+    function processLogin() {
+        const gens = openidClient.generators;
+        const nonce = gens.nonce();
+        const state = gens.state();
+        const codeVerifier = gens.codeVerifier();
+        const codeChallenger = gens.codeChallenge(codeVerifier);
 
-    const redir = oidcClient.authorizationUrl({
-        scope: 'openid email profile',
-        resource: oidcCallbackUrl,
-        code_challenge: codeChallenger,
-        code_challenge_method: 'S256',
-        nonce: nonce,
-        state: state,
-    });
+        req.session.code_verifier = codeVerifier
+        req.session.nonce = nonce
+        req.session.state = state
 
-    res.redirect(redir)
+        const redir = oidcClient.authorizationUrl({
+            scope: 'openid email profile',
+            resource: oidcCallbackUrl,
+            code_challenge: codeChallenger,
+            code_challenge_method: 'S256',
+            nonce: nonce,
+            state: state,
+        });
+
+        res.redirect(redir)    
+    };
+
+    if (!oidcClient.authorizationUrl) {
+        openidClient.Issuer.discover(config.ISSUER_URL).then((iss) => {
+            console.log('Discovered issuer %s %O', iss.issuer, iss.metadata);
+            oidcClient = new iss.Client({
+                client_id: process.env.CLIENT_ID,
+                client_secret: process.env.CLIENT_SECRET,
+                redirect_uris: [config.BASE_URL + "/oidc/callback"],
+                response_types: ['code'],
+            });
+            processLogin();
+        });
+    }
+
+    processLogin();
+
 });
 
 app.get('/oidc/callback', (req, res) => {
-    const oidcParams = oidcClient.callbackParams(req);
-    oidcClient.callback(oidcCallbackUrl, oidcClient.callbackParams(req), {
-        code_verifier: req.session.code_verifier,
-        state: req.session.state,
-        nonce: req.session.nonce,
-    }).then((tokenSet) => {
-        req.session.sessionTokens = tokenSet;
-        req.session.claims = tokenSet.claims();
 
-        if (tokenSet.access_token) {
-            // TODO(cstockton): Why doesn't this load into session
-            oidcClient.userinfo(tokenSet.access_token).then((userinfo) => {
-                req.session.userinfo = userinfo;
+    function processCallback() {
+        const oidcParams = oidcClient.callbackParams(req);
+        oidcClient.callback(oidcCallbackUrl, oidcClient.callbackParams(req), {
+            code_verifier: req.session.code_verifier,
+            state: req.session.state,
+            nonce: req.session.nonce,
+        }).then((tokenSet) => {
+            req.session.sessionTokens = tokenSet;
+            req.session.claims = tokenSet.claims();
 
-                res.cookie("authjwt", tokenSet.id_token, {
-                    secure: false,
-                    httpOnly: true,
-                    expires: 0
+            if (tokenSet.access_token) {
+                // TODO(cstockton): Why doesn't this load into session
+                oidcClient.userinfo(tokenSet.access_token).then((userinfo) => {
+                    req.session.userinfo = userinfo;
+
+                    res.cookie("authjwt", tokenSet.id_token, {
+                        secure: false,
+                        httpOnly: true,
+                        expires: 0
+                    });
+                    res.redirect(config.FRONT_SITE_URL);
                 });
-                res.redirect(config.FRONT_SITE_URL);
+            }
+        });
+    }
+
+    if (!oidcClient.authorizationUrl) {
+        openidClient.Issuer.discover(config.ISSUER_URL).then((iss) => {
+            console.log('Discovered issuer %s %O', iss.issuer, iss.metadata);
+            oidcClient = new iss.Client({
+                client_id: process.env.CLIENT_ID,
+                client_secret: process.env.CLIENT_SECRET,
+                redirect_uris: [config.BASE_URL + "/oidc/callback"],
+                response_types: ['code'],
             });
-        }
-    });
+            processLogin();
+        });
+    }
+    processCallback();
 });
 
 app.get('/oidc/logout', (req, res) => {

@@ -236,7 +236,7 @@ function verifyLookupJWT(jwtStr){
 function validateJWT(req){
   //check in cookie first
   const jwt_from_cookie = req.cookies.authjwt;
-
+  console.log("req.cookies.authjwt", req.cookies.authjwt);
   //check in Authorize header second
   const jwt_from_header = req.headers.authorization;
   // if it is a Bearer token strip out "Bearer"

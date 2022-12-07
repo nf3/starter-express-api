@@ -57,7 +57,7 @@ app.use(session({
     name: "authsess",
     cookie: {
         secure: false,
-        sameSite: 'lax',    // TODO(cstockton): http | https check
+        sameSite: 'none',    // TODO(cstockton): http | https check
     },
 }));
 
